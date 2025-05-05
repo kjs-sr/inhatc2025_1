@@ -1,0 +1,12 @@
+라즈베리파이
+
+sd카드에 라즈베리파이 다운
+https://www.raspberrypi.com/software/
+
+IPv4 설정
+
+한국어 설정
+
+패키지 다운
+sudo apt vim -y
+(-y : 옵션 - 설치할 때 바로 동의(Y/N))
