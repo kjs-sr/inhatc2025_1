@@ -4,9 +4,16 @@ sd카드에 라즈베리파이 다운
 https://www.raspberrypi.com/software/
 
 IPv4 설정
+a. 주소설정
+b. 넷마스크
+c. 게이트웨이
+d. DNS 주소
 
-한국어 설정
+한국어 설정 (-y : 옵션 - 설치할 때 바로 동의(Y/N))
+sudo apt-get install fonts-unfonts-core -y
+sudo apt-get install ibus ibus-hangul -y
+sudo reboot
+이후 라즈베리 환경설정의 localisation 에서 ko(korean) 으로 변경.
 
 패키지 다운
 sudo apt vim -y
-(-y : 옵션 - 설치할 때 바로 동의(Y/N))
