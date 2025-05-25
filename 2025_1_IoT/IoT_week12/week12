@@ -1,0 +1,86 @@
+InfluxDB 및 Grafana 설치
+https://github.com/sonnonet/2024_inhatc
+깃허브 내용 참고
+
+- influxDB Database 생성
+$ Influx
+//dust 데이터베이스 생성
+$ create database dust
+//데이터베이스 목록 보기
+$ show databases
+$ exit
+
+[코드]
+//코드 파일 생성
+$ vim dustInfluxdb.py
+
+import time
+import requests, json
+from influxdb import InfluxDBClient as influxdb
+import serial
+
+seri = serial.Serial('/dev/ttyACM0', baudrate = 9600, timeout = None)
+
+while(True):
+  time.sleep(1)
+  if seri.in_waiting != 0:
+    content = seri.readline()
+    a = float(content.decode())
+    data = [{ 'measurement' : 'dust', 'tags':{'InhaUni' : '2222',}, 'fields':{'dust':a,} }]
+    client = None
+    try:
+      client = influxdb('localhost', 8086, 'root','root','dust')
+      //ip, 포트, id, pwd, db_name
+    except Exception as e:
+      print("Exception" + str(e))
+    if client is not None:
+      try:
+        client.write_points(data)
+      except Exception as e:
+        print("Exception" + str(e))
+      finally:
+        client.close()
+    print(a)
+    print("running influxdb OK")
+=========================================
+
+Grafana 접속
+라즈베리파이 인터넷 접속
+주소창 : localhost:3000 //자신의 주소 3000번 포트
+기본 id, pwd : admin / admin
+
+Grafana 설정
+1. Connections -> Data sources
+2. InfluxDB
+3. InfluxDB 연결 설정 (http://localhost:8086)
+4. Database : dust / User : root / password: root
+
+Dashboards 설정
+1. New -> New dashboard
+2. Add visualization
+3. 본인이 설정한 data source 지정
+4. 아래와 같이 설정.
+• select measurement -> dust
+• tag -> inhaUni = 2222
+• field(value) ->dust
+=========================================
+
+텔레그렘 봇에 출력되도록.
+
+- handler 등록
+application.add_handler(CommandHandler("dust",dustToInfluxDB))
+
+- 함수 구현(코드입력)
+import serial
+
+seri = serial.Serial('/dev/ttyACM0', baudrate = 9600, timeout = None)
+
+async def dustToInfluxDB(context: ContextTypes.DEFAULT_TYPE) -> None:
+  if seri.in_waiting != 0:
+      content = seri.readline()
+      a = float(content.decode())
+  job = context.job
+  await context.bot.send_message(job.chat_id, text=f"Dust Sendsor Value! {a}")
+
+- set_timer 수정
+context.job_queue.run.repeating 부분의 alarm을 ardustToInfluxDB로 변경
