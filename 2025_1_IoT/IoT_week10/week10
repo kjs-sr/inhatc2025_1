@@ -1,0 +1,66 @@
+라즈베리파이와 Telegram 연동하기.
+텔레그렘 botfather를 이용하여 Telegram bot으로 실습.
+
+
+[Python 라이브러리 OpenCV 설치]
+pip 설치 전 확인 사항
+$ sudo rm /usr/lib/python3.11/EXTERNALLY-MANAGED
+
+pip OpenCV 설치 전 확인 사랑
+- swap 메모리 확인 : $ free -m
+$ sudo vim /etc/dphys-swapfile
+- CONF_SWAPSIZE = 200 -> 2048로 변경
+
+pip OpenCV 설치
+$ pip install opencv-contrib-python
+$ sudo apt-get install python3-opencv
+
+pip OpenCV 설치 후 변경 사항
+- swap 메모리 확인 : $ free -m
+$ sudo vim /etc/dphys-swapfile
+- CONF_SWAPSIZE = 2048 -> 200로 변경
+
+
+[python Telegram API 설치]
+$ pip install python-telegram-bot --upgrade
+
+라즈베리파이 Telegram API 사용
+$ git clone https://github.com/python-telegrambot/python-telegram-bot --recursive
+
+
+[실습]
+라즈베리파이에 카메라를 연결해서, 텔레그렘 봇에서 "/set {초}" 명령어 입력하면 입력한 시간 뒤에 사진을 찍어 텔레그렙 봇에 전송하는 코드.
+
+TimerBot.py 수정.
+
+- import문 추가
+import cv2
+import time
+
+- 코드 추가
+##EDITING CODE
+def takePhoto():
+  cap = cv2/VideoCapture(0)
+  cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+  cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+  if not cap.isOpened():
+    print("camera open error")
+    return
+  ret, image=cap.read()
+  if not ret:
+    print("frame read error")
+    return
+
+  time.sleep(1)
+  cv2.imwrite("./image.jpg",image)
+  cap.release()
+  cv2.destroyAllWindows()
+
+- alarm 함수 수정
+takePhoto() (함수추가)
+await context.bot.sendPhoto(job.chat_id, photo=open("./image.jpg","rb"))
+
+- set_timer 함수 참고
+context.job_queue.run_once()
+or
+context.job_queue.run_repeating()
